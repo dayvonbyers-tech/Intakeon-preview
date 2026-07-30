@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntakeOn — AI-Powered Receptionist for Law Firms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #E63946;
+  --red-dark: #D62839;
+  --blue: #3055A4;
+  --navy: #000000;
+  --text: #9AA3B1;
+  --text-dim: #566070;
+  --text-dark: #333C4A;
+  --border: rgba(255,255,255,.04);
+  --card-bg: rgba(255,255,255,.01);
+  --card-border: rgba(255,255,255,.04);
+  --heading: #B0B8C4;
+  --subtext: #6B7580;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:'Libre Franklin',sans-serif;background:var(--navy);color:var(--text);overflow-x:hidden}
+
+@keyframes ringPulse{0%{transform:scale(1);opacity:.5}100%{transform:scale(2.2);opacity:0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes gradShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes glow{0%,100%{opacity:.25}50%{opacity:.6}}
+@keyframes slideChat{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+.wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+.label{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:12px;font-family:'Sora',sans-serif}
+.heading{font-family:'Sora',sans-serif;font-size:clamp(26px,4.5vw,46px);font-weight:800;letter-spacing:-1.5px;line-height:1.08;color:var(--heading)}
+.sub{color:var(--text-dim);font-size:17px;line-height:1.7;max-width:520px}
+.gradient-text{background:linear-gradient(135deg,var(--red),#FF6B6B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-center{text-align:center;margin-bottom:52px}
+section{padding:100px 0}
+
+.btn-red{background:linear-gradient(135deg,var(--red),var(--red-dark),var(--red));background-size:200% 200%;animation:gradShift 4s ease infinite;color:#fff;font-weight:700;border:none;padding:15px 34px;border-radius:10px;font-size:15px;cursor:pointer;transition:transform .2s,box-shadow .2s;font-family:inherit;display:inline-block;text-decoration:none;text-align:center}
+.btn-red:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(230,57,70,.35)}
+.btn-outline{background:transparent;color:var(--text);font-weight:600;border:1.5px solid rgba(255,255,255,.1);padding:15px 34px;border-radius:10px;font-size:15px;cursor:pointer;transition:border-color .2s,background .2s;font-family:inherit;display:inline-block;text-decoration:none;text-align:center}
+.btn-outline:hover{border-color:var(--red);background:rgba(230,57,70,.04)}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;background:rgba(0,0,0,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{width:36px;height:36px;border-radius:50%;background:conic-gradient(from 0deg,var(--red),var(--blue),var(--red));display:flex;align-items:center;justify-content:center}
+.logo-mark-inner{width:24px;height:24px;border-radius:50%;background:#000;display:flex;align-items:center;justify-content:center}
+.nav-brand{font-family:'Sora';font-weight:800;font-size:19px;letter-spacing:-.5px;color:var(--heading)}
+.nav-brand span{color:var(--red)}
+.nav-links{display:flex;align-items:center;gap:26px}
+.nav-link{color:var(--text-dim);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nav-link:hover{color:var(--red)}
+
+.glass{background:rgba(255,255,255,.008);border:1px solid var(--card-border);backdrop-filter:blur(10px)}
+.card{padding:30px;border-radius:18px;transition:transform .3s,border-color .3s;background:var(--card-bg);border:1px solid var(--card-border)}
+.card:hover{transform:translateY(-3px);border-color:rgba(230,57,70,.15)}
+
+.pain-card{text-align:center;padding:28px 20px;border-radius:16px;background:rgba(230,57,70,.02);border:1px solid rgba(230,57,70,.06)}
+.pain-stat{font-family:'Sora';font-size:36px;font-weight:900;color:var(--red)}
+
+.feature-row{display:flex;gap:18px;align-items:flex-start}
+.feature-icon{width:48px;height:48px;border-radius:12px;flex-shrink:0;background:rgba(230,57,70,.04);border:1px solid rgba(230,57,70,.08);display:flex;align-items:center;justify-content:center;font-size:22px}
+
+.step-num{font-family:'Sora';font-size:42px;font-weight:900;color:rgba(230,57,70,.05);position:absolute;top:10px;left:16px}
+
+.pricing-card{border-radius:22px;padding:34px;position:relative;transition:transform .3s}
+.pricing-card:hover{transform:translateY(-5px)}
+.pricing-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;padding:4px 18px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px;white-space:nowrap}
+.pricing-name{font-family:'Sora';font-weight:700;font-size:20px;color:var(--heading);margin-bottom:4px}
+.pricing-desc{color:var(--text-dark);font-size:13px;margin-bottom:22px}
+.pricing-amount{font-family:'Sora';font-size:42px;font-weight:900}
+.pricing-feature{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--subtext);margin-bottom:11px}
+.pricing-check{flex-shrink:0;font-size:13px;margin-top:1px}
+.pricing-detail{font-size:12px;color:var(--text-dark);margin-bottom:4px}
+
+.faq-item{border-bottom:1px solid rgba(255,255,255,.04)}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:22px 0;cursor:pointer;font-size:16px;font-weight:600;color:var(--text);transition:color .2s;gap:14px;background:none;border:none;width:100%;text-align:left;font-family:inherit}
+.faq-q:hover{color:var(--red)}
+.faq-icon{color:var(--red);font-size:20px;transition:transform .3s;flex-shrink:0}
+.faq-a{color:var(--text-dim);line-height:1.7;font-size:14.5px;max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s ease;padding-bottom:0}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:22px}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+
+.input-field{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:13px 16px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s}
+.input-field:focus{border-color:rgba(230,57,70,.5)}
+.input-field::placeholder{color:#2A3342}
+
+.chat-ai{background:rgba(230,57,70,.05);border:1px solid rgba(230,57,70,.08);color:#A06068;border-radius:13px;border-top-left-radius:3px;padding:9px 13px;max-width:88%;font-size:12px;line-height:1.5}
+.chat-caller{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);color:var(--subtext);border-radius:13px;border-top-right-radius:3px;padding:9px 13px;max-width:88%;font-size:12px;line-height:1.5}
+
+.compare-row{display:grid;grid-template-columns:130px 1fr 1fr;gap:10px;font-size:13px;align-items:center;margin-bottom:10px}
+.compare-label{color:var(--subtext);font-weight:600}
+.compare-diy{color:var(--text-dark);padding:8px 12px;background:rgba(255,255,255,.015);border-radius:8px;text-align:center}
+.compare-io{color:#A06068;padding:8px 12px;background:rgba(230,57,70,.04);border:1px solid rgba(230,57,70,.06);border-radius:8px;text-align:center;font-weight:600}
+
+.check-item{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
+.check-box{width:24px;height:24px;border-radius:7px;background:rgba(230,57,70,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;color:var(--red);font-size:13px;font-weight:700}
+
+.wave-bar{width:3px;border-radius:1.5px;background:linear-gradient(to bottom,var(--red),var(--blue))}
+.ring-pulse{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(230,57,70,.15)}
+.ring-pulse:nth-child(1){animation:ringPulse 2.2s ease-out 0s infinite}
+.ring-pulse:nth-child(2){animation:ringPulse 2.2s ease-out .45s infinite}
+
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0}
+.ambient-orb{position:absolute;border-radius:50%}
+.ambient-orb-1{top:-15%;right:-5%;width:600px;height:600px;background:radial-gradient(circle,rgba(230,57,70,.06) 0%,transparent 70%);animation:glow 7s ease-in-out infinite}
+.ambient-orb-2{bottom:-10%;left:-8%;width:500px;height:500px;background:radial-gradient(circle,rgba(48,85,164,.05) 0%,transparent 70%);animation:glow 9s ease-in-out 3s infinite}
+
+.tag{display:inline-block;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.5px}
+footer{padding:36px 0 24px;border-top:1px solid rgba(255,255,255,.03)}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.grid-2-wide{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center}
+
+@media(max-width:900px){
+  .grid-4{grid-template-columns:repeat(2,1fr)}
+  .grid-3,.grid-2,.grid-2-wide{grid-template-columns:1fr}
+  .grid-2-wide{gap:36px}
+  .nav-links .nav-link{display:none}
+  .hero-grid{grid-template-columns:1fr!important}
+  .compare-row{grid-template-columns:1fr;gap:6px}
+  .pricing-grid{grid-template-columns:1fr!important;max-width:420px;margin:0 auto}
+  .stats-row{flex-direction:column;gap:20px!important}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient"><div class="ambient-orb ambient-orb-1"></div><div class="ambient-orb ambient-orb-2"></div></div>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <div class="wrap nav-inner">
+    <a href="#" class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">
+      <div class="logo-mark"><div class="logo-mark-inner">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#E63946"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.13.81.36 1.6.68 2.35a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.75.32 1.54.55 2.35.68A2 2 0 0122 16.92z"/></svg>
+      </div></div>
+      <span class="nav-brand">intake<span>On</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#howitworks" class="nav-link">How It Works</a>
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="#practice-areas" class="nav-link">Practice Areas</a>
+      <a href="#faq" class="nav-link">FAQ</a>
+      <a href="#contact" class="btn-red" style="padding:10px 22px;font-size:13px;">Book a Consultation</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section style="min-height:100vh;display:flex;align-items:center;padding-top:100px;padding-bottom:80px;position:relative;z-index:1;">
+  <div class="wrap">
+    <div class="hero-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center;">
+      <div>
+        <div class="reveal" style="display:flex;gap:8px;margin-bottom:20px;">
+          <span class="tag" style="background:rgba(230,57,70,.08);color:#C06068;">Built for Law Firms</span>
+          <span class="tag" style="background:rgba(48,85,164,.08);color:#6080B0;">24/7 AI Intake</span>
+        </div>
+        <div class="reveal" style="transition-delay:.08s">
+          <h1 style="font-family:'Sora';font-size:clamp(34px,5vw,56px);font-weight:900;letter-spacing:-2px;line-height:1.06;margin-bottom:22px;color:var(--heading);">
+            Turn missed calls into<br><span class="gradient-text">signed clients.</span>
+          </h1>
+        </div>
+        <div class="reveal" style="transition-delay:.15s">
+          <p style="color:var(--text-dim);font-size:18px;line-height:1.7;max-width:460px;margin-bottom:32px;">
+            IntakeOn deploys a custom AI-powered receptionist for your law firm — answering every call, qualifying leads, and booking consultations around the clock. Done-for-you. Live in 48 hours.
+          </p>
+        </div>
+        <div class="reveal" style="transition-delay:.22s">
+          <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px;">
+            <a href="#contact" class="btn-red">Book Your Free Consultation →</a>
+            <a href="#howitworks" class="btn-outline">See How It Works</a>
+          </div>
+          <p style="color:var(--text-dark);font-size:13px;">Done-for-you setup · Built for law firms · No missed leads</p>
+        </div>
+        <div class="reveal stats-row" style="display:flex;gap:36px;margin-top:40px;padding-top:24px;border-top:1px solid var(--border);transition-delay:.3s">
+          <div>
+            <div style="font-family:'Sora';font-size:26px;font-weight:800;color:var(--red);" data-counter="85" data-suffix="%">0</div>
+            <div style="color:var(--text-dark);font-size:12px;font-weight:500;margin-top:3px;">of missed callers never call back</div>
+          </div>
+          <div>
+            <div style="font-family:'Sora';font-size:26px;font-weight:800;color:var(--red);" data-counter="24" data-suffix="/7">0</div>
+            <div style="color:var(--text-dark);font-size:12px;font-weight:500;margin-top:3px;">Client intake coverage</div>
+          </div>
+          <div>
+            <div style="font-family:'Sora';font-size:26px;font-weight:800;color:var(--red);" data-counter="48" data-suffix="hr">0</div>
+            <div style="color:var(--text-dark);font-size:12px;font-weight:500;margin-top:3px;">Avg time to go live</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call simulation -->
+      <div class="reveal" style="display:flex;justify-content:center;transition-delay:.12s">
+        <div class="glass" style="border-radius:22px;padding:26px;max-width:360px;width:100%;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <div>
+              <div style="font-weight:700;font-size:14px;color:var(--heading);">Incoming Call — Davis Law Group</div>
+              <div style="color:var(--red);font-size:12px;font-weight:600;margin-top:2px;">IntakeOn AI Handling · 0:38</div>
+            </div>
+            <div style="position:relative;width:40px;height:40px;">
+              <div class="ring-pulse"></div><div class="ring-pulse"></div>
+              <div style="position:absolute;inset:6px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));display:flex;align-items:center;justify-content:center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.13.81.36 1.6.68 2.35a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.75.32 1.54.55 2.35.68A2 2 0 0122 16.92z"/></svg>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+            <div style="display:flex;"><div class="chat-ai" style="animation:slideChat .4s ease 0s both;">Thank you for calling Davis Law Group. How can I assist you today?</div></div>
+            <div style="display:flex;justify-content:flex-end;"><div class="chat-caller" style="animation:slideChat .4s ease .1s both;">Hi, I was in a car accident last week and need to talk to an attorney.</div></div>
+            <div style="display:flex;"><div class="chat-ai" style="animation:slideChat .4s ease .2s both;">I'm sorry to hear that. I can schedule a free consultation right now. Can I get your name and the best number to reach you?</div></div>
+            <div style="display:flex;justify-content:flex-end;"><div class="chat-caller" style="animation:slideChat .4s ease .3s both;">Sure — Michael Torres, 404-555-0192.</div></div>
+            <div style="display:flex;"><div class="chat-ai" style="animation:slideChat .4s ease .4s both;">Thank you, Michael. You're confirmed for tomorrow at 10 AM with Attorney Davis. I've sent a confirmation text to your phone. Is there anything else?</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border);">
+            <div id="waveform" style="display:flex;align-items:center;gap:2px;height:28px;"></div>
+            <div>
+              <div style="font-size:11px;color:var(--text-dark);">Live AI voice</div>
+              <div style="font-size:10px;color:#1A2030;">Lead qualified · Consultation booked · SMS sent</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PAIN POINTS ═══ -->
+<section style="padding:80px 0;">
+  <div class="wrap">
+    <div class="reveal section-center"><div class="label">THE PROBLEM</div></div>
+    <div class="reveal section-center" style="transition-delay:.08s"><h2 class="heading">Your firm is losing clients<br>every time the phone rings out</h2></div>
+    <div class="grid-4" style="margin-top:48px;">
+      <div class="reveal pain-card"><div class="pain-stat">85%</div><p style="font-size:13px;color:var(--subtext);line-height:1.6;margin-top:8px;">of potential clients who can't reach your firm never call back</p></div>
+      <div class="reveal pain-card" style="transition-delay:.08s"><div class="pain-stat">62%</div><p style="font-size:13px;color:var(--subtext);line-height:1.6;margin-top:8px;">of missed callers hire a competitor instead</p></div>
+      <div class="reveal pain-card" style="transition-delay:.16s"><div class="pain-stat">$126K</div><p style="font-size:13px;color:var(--subtext);line-height:1.6;margin-top:8px;">average annual revenue lost to unanswered calls per firm</p></div>
+      <div class="reveal pain-card" style="transition-delay:.24s"><div class="pain-stat">46%</div><p style="font-size:13px;color:var(--subtext);line-height:1.6;margin-top:8px;">of law firm calls go unanswered during business hours</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section id="howitworks">
+  <div class="wrap">
+    <div class="reveal section-center"><div class="label">HOW IT WORKS</div></div>
+    <div class="reveal section-center" style="transition-delay:.08s"><h2 class="heading">We set it up. We launch it.<br>You sign more clients.</h2></div>
+    <div class="reveal section-center" style="transition-delay:.14s"><p class="sub" style="text-align:center;margin:0 auto;">IntakeOn is a done-for-you consulting service — not software you figure out alone. We handle everything.</p></div>
+    <div class="grid-4" style="margin-top:52px;">
+      <div class="reveal card" style="text-align:center;position:relative;">
+        <div class="step-num">01</div>
+        <div style="font-size:34px;margin-bottom:12px;animation:float 3s ease-in-out 0s infinite;">🤝</div>
+        <h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:8px;color:var(--heading);">Discovery</h3>
+        <p style="color:var(--text-dim);font-size:13px;line-height:1.6;">We learn your practice areas, intake process, qualifying questions, and how your firm books consultations.</p>
+      </div>
+      <div class="reveal card" style="text-align:center;position:relative;transition-delay:.1s">
+        <div class="step-num">02</div>
+        <div style="font-size:34px;margin-bottom:12px;animation:float 3s ease-in-out .3s infinite;">⚙️</div>
+        <h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:8px;color:var(--heading);">Build & Configure</h3>
+        <p style="color:var(--text-dim);font-size:13px;line-height:1.6;">We build your AI receptionist with custom scripts, intake workflows, calendar rules, and CRM integrations.</p>
+      </div>
+      <div class="reveal card" style="text-align:center;position:relative;transition-delay:.2s">
+        <div class="step-num">03</div>
+        <div style="font-size:34px;margin-bottom:12px;animation:float 3s ease-in-out .6s infinite;">🚀</div>
+        <h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:8px;color:var(--heading);">Go Live</h3>
+        <p style="color:var(--text-dim);font-size:13px;line-height:1.6;">Your AI receptionist answers your firm's lines. Every call qualified, every consultation booked — from day one.</p>
+      </div>
+      <div class="reveal card" style="text-align:center;position:relative;transition-delay:.3s">
+        <div class="step-num">04</div>
+        <div style="font-size:34px;margin-bottom:12px;animation:float 3s ease-in-out .9s infinite;">📈</div>
+        <h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:8px;color:var(--heading);">Optimize</h3>
+        <p style="color:var(--text-dim);font-size:13px;line-height:1.6;">Ongoing script refinement, performance reporting, and conversion optimization to maximize your signed cases.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section id="features">
+  <div class="wrap">
+    <div class="reveal"><div class="label">THE INTAKEON SYSTEM</div></div>
+    <div class="reveal" style="transition-delay:.08s"><h2 class="heading" style="margin-bottom:14px;">Every call answered.<br>Every lead captured.</h2></div>
+    <div class="reveal" style="transition-delay:.14s"><p class="sub" style="margin-bottom:52px;">Configured and optimized specifically for your law firm's intake process.</p></div>
+    <div class="grid-2">
+      <div class="reveal card"><div class="feature-row"><div class="feature-icon">📞</div><div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">24/7 AI Call Answering</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">Every call answered with a professional, branded greeting — nights, weekends, holidays. No lead left behind.</p></div></div></div>
+      <div class="reveal card" style="transition-delay:.06s"><div class="feature-row"><div class="feature-icon">📋</div><div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">Client Intake & Lead Qualification</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">AI captures case details, asks qualifying questions, and routes only viable leads to your attorneys.</p></div></div></div>
+      <div class="reveal card" style="transition-delay:.12s"><div class="feature-row"><div class="feature-icon">📅</div><div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">Automated Consultation Booking</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">Books directly onto your calendar with real-time availability — fully synced with GoHighLevel.</p></div></div></div>
+      <div class="reveal card" style="transition-delay:.18s"><div class="feature-row"><div class="feature-icon">💬</div><div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">SMS Confirmations & Reminders</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">Automatic text confirmations and appointment reminders reduce no-shows and keep your calendar full.</p></div></div></div>
+      <div class="reveal card" style="transition-delay:.24s"><div class="feature-row"><div class="feature-icon">📊</div><div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">Detailed Call Summaries</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">Every call generates a summary with caller info, case type, and qualifying details — delivered to your team instantly.</p></div></div></div>
+      <div class="reveal card" style="transition-delay:.3s"><div class="feature-row"><div class="feature-icon">🔗</div><div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">CRM & Calendar Integration</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">Full integration with GoHighLevel — funnels, calendars, leads, and pipelines all connected seamlessly.</p></div></div></div>
+      <div class="reveal card" style="transition-delay:.36s"><div class="feature-row"><div class="feature-icon">🌙</div><div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">After-Hours Intake</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">Capture leads while your office is closed. After-hours callers get the same professional intake experience.</p></div></div></div>
+      <div class="reveal card" style="transition-delay:.42s"><div class="feature-row"><div class="feature-icon">📱</div><div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">Missed-Call Text-Back</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">When a call can't connect, the system texts the caller back automatically — keeping the lead alive.</p></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="reveal section-center"><div class="label">PRICING</div></div>
+    <div class="reveal section-center" style="transition-delay:.08s"><h2 class="heading">Plans built for law firms<br>that want to grow.</h2></div>
+    <div class="reveal section-center" style="transition-delay:.14s"><p class="sub" style="text-align:center;margin:0 auto;">Every plan includes done-for-you setup, custom intake scripting, and ongoing optimization.</p></div>
+
+    <div class="pricing-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:start;margin-top:52px;">
+      <!-- Starter -->
+      <div class="reveal pricing-card" style="background:var(--card-bg);border:1.5px solid var(--card-border);">
+        <div class="pricing-name">Starter</div>
+        <div class="pricing-desc">For solo attorneys & small firms</div>
+        <div style="display:flex;align-items:baseline;gap:3px;margin-bottom:6px;">
+          <span style="color:var(--text-dark);font-size:18px;">$</span>
+          <span class="pricing-amount" style="color:#60A5FA;">997</span>
+          <span style="color:var(--text-dark);font-size:14px;">/mo</span>
+        </div>
+        <div class="pricing-detail">Setup fee: $1,500 – $2,500</div>
+        <div class="pricing-detail" style="margin-bottom:22px;">6-month minimum commitment</div>
+        <div style="margin-bottom:28px;">
+          <div class="pricing-feature"><span class="pricing-check" style="color:#60A5FA;">✓</span><span>24/7 AI call answering</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#60A5FA;">✓</span><span>Up to 300 calls/month</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#60A5FA;">✓</span><span>1 practice area</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#60A5FA;">✓</span><span>Basic client intake & qualification</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#60A5FA;">✓</span><span>Appointment booking</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#60A5FA;">✓</span><span>SMS follow-ups</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#60A5FA;">✓</span><span>Missed-call text-back</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#60A5FA;">✓</span><span>Email call summaries</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#60A5FA;">✓</span><span>Basic integrations</span></div>
+        </div>
+        <a href="#contact" class="btn-outline" style="width:100%;display:block;">Get Started</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="reveal pricing-card" style="background:rgba(230,57,70,.02);border:1.5px solid rgba(230,57,70,.12);transition-delay:.1s">
+        <div class="pricing-badge">MOST POPULAR</div>
+        <div class="pricing-name">Pro</div>
+        <div class="pricing-desc">For firms serious about lead conversion</div>
+        <div style="display:flex;align-items:baseline;gap:3px;margin-bottom:6px;">
+          <span style="color:var(--text-dark);font-size:18px;">$</span>
+          <span class="pricing-amount" style="color:var(--red);">2,500</span>
+          <span style="color:var(--text-dark);font-size:14px;">/mo</span>
+        </div>
+        <div class="pricing-detail">Setup fee: $3,500 – $6,000</div>
+        <div class="pricing-detail" style="margin-bottom:22px;">6–12 month commitment</div>
+        <div style="margin-bottom:6px;font-size:12px;color:var(--text-dim);font-weight:600;">Everything in Starter plus:</div>
+        <div style="margin-bottom:28px;">
+          <div class="pricing-feature"><span class="pricing-check" style="color:var(--red);">✓</span><span>Up to 1,000 calls/month</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:var(--red);">✓</span><span>Multi-practice area support</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:var(--red);">✓</span><span>Advanced intake workflows</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:var(--red);">✓</span><span>CRM integration</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:var(--red);">✓</span><span>Google Calendar sync</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:var(--red);">✓</span><span>Custom scripting</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:var(--red);">✓</span><span>Consultation reminders</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:var(--red);">✓</span><span>Follow-up automation</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:var(--red);">✓</span><span>Performance dashboard</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:var(--red);">✓</span><span>Priority support</span></div>
+        </div>
+        <a href="#contact" class="btn-red" style="width:100%;display:block;">Get Started</a>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="reveal pricing-card" style="background:var(--card-bg);border:1.5px solid var(--card-border);transition-delay:.2s">
+        <div class="pricing-name">Enterprise</div>
+        <div class="pricing-desc">For PI firms, large firms & multi-location</div>
+        <div style="display:flex;align-items:baseline;gap:3px;margin-bottom:6px;">
+          <span style="color:var(--text-dark);font-size:16px;">$</span>
+          <span class="pricing-amount" style="color:#8B5CF6;font-size:36px;">5,000 – 12,000<span style="font-size:16px;font-weight:600;">+</span></span>
+          <span style="color:var(--text-dark);font-size:14px;">/mo</span>
+        </div>
+        <div class="pricing-detail">Setup fee: $7,500 – $20,000</div>
+        <div class="pricing-detail" style="margin-bottom:22px;">12-month minimum commitment</div>
+        <div style="margin-bottom:6px;font-size:12px;color:var(--text-dim);font-weight:600;">Everything in Pro plus:</div>
+        <div style="margin-bottom:28px;">
+          <div class="pricing-feature"><span class="pricing-check" style="color:#8B5CF6;">✓</span><span>Unlimited calls</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#8B5CF6;">✓</span><span>Multi-location support</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#8B5CF6;">✓</span><span>Custom AI training</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#8B5CF6;">✓</span><span>Advanced reporting</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#8B5CF6;">✓</span><span>HIPAA-sensitive workflows</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#8B5CF6;">✓</span><span>Custom CRM integrations</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#8B5CF6;">✓</span><span>Dedicated account manager</span></div>
+          <div class="pricing-feature"><span class="pricing-check" style="color:#8B5CF6;">✓</span><span>White-glove optimization</span></div>
+        </div>
+        <a href="#contact" class="btn-outline" style="width:100%;display:block;">Contact Sales</a>
+      </div>
+    </div>
+
+    <div class="reveal" style="text-align:center;margin-top:36px;padding:20px 28px;border-radius:14px;background:var(--card-bg);border:1px solid var(--card-border);transition-delay:.3s">
+      <p style="font-size:14px;color:var(--text-dim);line-height:1.6;">
+        <strong style="color:var(--heading);">Launch Offer:</strong> $2,500 one-time setup for Starter plans. <a href="#contact" style="color:var(--red);text-decoration:none;font-weight:600;">Book a consultation</a> to learn more.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRACTICE AREAS ═══ -->
+<section id="practice-areas">
+  <div class="wrap">
+    <div class="reveal section-center"><div class="label">PRACTICE AREAS</div></div>
+    <div class="reveal section-center" style="transition-delay:.08s"><h2 class="heading">Custom-built intake for<br>every area of law</h2></div>
+    <div class="grid-3" style="margin-top:52px;">
+      <div class="reveal card"><div style="font-size:30px;margin-bottom:10px;">🚗</div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">Personal Injury</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">24/7 accident intake, case qualification, medical status capture, and immediate consultation booking for PI leads.</p></div>
+      <div class="reveal card" style="transition-delay:.08s"><div style="font-size:30px;margin-bottom:10px;">👨‍👩‍👧</div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">Family Law</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">Sensitive intake for divorce, custody, and support cases with empathetic AI scripting and scheduling.</p></div>
+      <div class="reveal card" style="transition-delay:.16s"><div style="font-size:30px;margin-bottom:10px;">⚖️</div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">Criminal Defense</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">Urgent after-hours intake for arrests and charges. Captures case details and books consults immediately.</p></div>
+      <div class="reveal card" style="transition-delay:.24s"><div style="font-size:30px;margin-bottom:10px;">🏛️</div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">Immigration</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">Multi-language capable intake for visa, asylum, and citizenship cases with document checklist guidance.</p></div>
+      <div class="reveal card" style="transition-delay:.32s"><div style="font-size:30px;margin-bottom:10px;">💼</div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">Employment Law</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">Workplace discrimination, wrongful termination, and wage dispute intake with proper qualifying questions.</p></div>
+      <div class="reveal card" style="transition-delay:.4s"><div style="font-size:30px;margin-bottom:10px;">🏠</div><h3 style="font-family:'Sora';font-weight:700;font-size:16px;margin-bottom:6px;color:var(--heading);">Real Estate & Business</h3><p style="color:var(--text-dim);font-size:13.5px;line-height:1.65;">Contract disputes, closings, and entity formation — intake tailored to commercial and transactional practice.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WHY INTAKEON ═══ -->
+<section>
+  <div class="wrap">
+    <div class="grid-2-wide">
+      <div class="reveal">
+        <div class="label">WHY INTAKEON</div>
+        <h2 class="heading" style="margin-bottom:18px;">Software alone won't<br>sign you more clients.</h2>
+        <p class="sub" style="margin-bottom:28px;">Most AI tools give you a login and leave you to figure it out. 74% of firms fail to get results past the trial phase. IntakeOn is a consulting partner — not a software subscription.</p>
+        <div class="check-item"><div class="check-box">✓</div><div><div style="font-weight:700;font-size:14px;color:var(--heading);margin-bottom:3px;">Done-for-you, not DIY</div><div style="font-size:13px;color:var(--text-dim);line-height:1.55;">We configure every script, workflow, and integration. You focus on practicing law.</div></div></div>
+        <div class="check-item"><div class="check-box">✓</div><div><div style="font-weight:700;font-size:14px;color:var(--heading);margin-bottom:3px;">Built specifically for law firms</div><div style="font-size:13px;color:var(--text-dim);line-height:1.55;">PI intake is different from family law intake. We customize for your practice areas and case types.</div></div></div>
+        <div class="check-item"><div class="check-box">✓</div><div><div style="font-weight:700;font-size:14px;color:var(--heading);margin-bottom:3px;">Ongoing optimization</div><div style="font-size:13px;color:var(--text-dim);line-height:1.55;">We monitor conversion rates, refine scripts, and optimize your system month over month.</div></div></div>
+        <div class="check-item"><div class="check-box">✓</div><div><div style="font-weight:700;font-size:14px;color:var(--heading);margin-bottom:3px;">Powered by GoHighLevel</div><div style="font-size:13px;color:var(--text-dim);line-height:1.55;">Funnels, calendars, leads, and pipelines — all managed in one platform your team can access.</div></div></div>
+      </div>
+      <div class="reveal glass" style="border-radius:20px;padding:28px;transition-delay:.12s">
+        <div style="font-family:'Sora';font-weight:700;font-size:18px;color:var(--heading);margin-bottom:6px;">DIY Software vs. IntakeOn</div>
+        <p style="font-size:13px;color:var(--text-dark);margin-bottom:24px;">Why the consulting model wins for law firms</p>
+        <div class="compare-row"><span class="compare-label">Setup</span><span class="compare-diy">Hours of self-config</span><span class="compare-io">Done in 48 hrs</span></div>
+        <div class="compare-row"><span class="compare-label">Intake scripts</span><span class="compare-diy">Generic templates</span><span class="compare-io">Custom to your practice</span></div>
+        <div class="compare-row"><span class="compare-label">Integrations</span><span class="compare-diy">Figure it out</span><span class="compare-io">GHL fully connected</span></div>
+        <div class="compare-row"><span class="compare-label">Optimization</span><span class="compare-diy">You're on your own</span><span class="compare-io">Monthly performance tuning</span></div>
+        <div class="compare-row"><span class="compare-label">Support</span><span class="compare-diy">Help docs & tickets</span><span class="compare-io">Dedicated partner</span></div>
+        <div class="compare-row"><span class="compare-label">Results</span><span class="compare-diy">26% scale past trial</span><span class="compare-io">Built to convert day 1</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section id="faq">
+  <div class="wrap" style="max-width:700px;margin:0 auto;">
+    <div class="reveal section-center"><div class="label">FAQ</div></div>
+    <div class="reveal section-center" style="transition-delay:.08s"><h2 class="heading">Common questions</h2></div>
+    <div style="margin-top:44px;">
+      <div class="faq-item reveal"><button class="faq-q" onclick="toggleFaq(this)">How is IntakeOn different from buying AI receptionist software?<span class="faq-icon">+</span></button><div class="faq-a">IntakeOn is a done-for-you consulting service, not a software login. We configure, customize, integrate, launch, and continuously optimize your AI receptionist — specifically for your law firm's intake process. You get a partner who ensures it converts, not a dashboard to figure out yourself.</div></div>
+      <div class="faq-item reveal" style="transition-delay:.05s"><button class="faq-q" onclick="toggleFaq(this)">How quickly can my firm go live?<span class="faq-icon">+</span></button><div class="faq-a">Most firms are fully operational within 48-72 hours after our discovery call. Complex setups with multiple practice areas or custom integrations typically take 1-2 weeks.</div></div>
+      <div class="faq-item reveal" style="transition-delay:.1s"><button class="faq-q" onclick="toggleFaq(this)">Will callers know they're speaking with AI?<span class="faq-icon">+</span></button><div class="faq-a">Our AI uses advanced neural voice technology that sounds natural and professional. Most callers can't tell the difference — and more importantly, they get their questions answered and consultations booked instantly, even at 2 AM.</div></div>
+      <div class="faq-item reveal" style="transition-delay:.15s"><button class="faq-q" onclick="toggleFaq(this)">What happens if a caller has a complex legal question?<span class="faq-icon">+</span></button><div class="faq-a">The AI is trained to qualify and book — not give legal advice. For complex questions, it routes the caller to your team with full context including caller name, case type, and everything discussed. No information is lost.</div></div>
+      <div class="faq-item reveal" style="transition-delay:.2s"><button class="faq-q" onclick="toggleFaq(this)">Do I need to change my phone number?<span class="faq-icon">+</span></button><div class="faq-a">No. We work with your existing business number. Calls are forwarded or routed through your current phone system — zero disruption to your practice.</div></div>
+      <div class="faq-item reveal" style="transition-delay:.25s"><button class="faq-q" onclick="toggleFaq(this)">What does the setup fee cover?<span class="faq-icon">+</span></button><div class="faq-a">The one-time setup fee covers discovery, custom intake script writing per practice area, AI voice configuration, GoHighLevel integration (funnels, calendars, pipelines), testing, and white-glove go-live support.</div></div>
+      <div class="faq-item reveal" style="transition-delay:.3s"><button class="faq-q" onclick="toggleFaq(this)">What if I go over my monthly call limit?<span class="faq-icon">+</span></button><div class="faq-a">We don't cut you off. Overage calls are billed at a simple per-call rate. If you're consistently exceeding your plan, we'll recommend upgrading — which is usually more cost-effective.</div></div>
+      <div class="faq-item reveal" style="transition-delay:.35s"><button class="faq-q" onclick="toggleFaq(this)">What's the contract commitment?<span class="faq-icon">+</span></button><div class="faq-a">Starter plans require a 6-month minimum. Pro plans are 6-12 months. Enterprise agreements are 12 months. We invest heavily in building your custom system — the commitment ensures both sides see the full ROI.</div></div>
+      <div class="faq-item reveal" style="transition-delay:.4s"><button class="faq-q" onclick="toggleFaq(this)">Can I see a dashboard of my calls and leads?<span class="faq-icon">+</span></button><div class="faq-a">Yes — Pro and Enterprise clients get access to a performance dashboard with call volume, lead quality, conversion rates, and intake analytics. Everything is also visible inside your GoHighLevel account.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA / CONTACT ═══ -->
+<section id="contact">
+  <div class="wrap">
+    <div class="reveal glass" style="border-radius:28px;padding:56px 48px;text-align:center;background:linear-gradient(135deg,rgba(230,57,70,.03),rgba(48,85,164,.02));border:1px solid rgba(230,57,70,.08);">
+      <h2 class="heading" style="margin-bottom:12px;">Ready to stop losing clients<br>to missed calls?</h2>
+      <p class="sub" style="margin:0 auto 36px;text-align:center;">
+        Book a free consultation. We'll analyze your current intake process and show you exactly how many signed cases you're leaving on the table.
+      </p>
+      <div id="contact-form" style="max-width:500px;margin:0 auto;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <input class="input-field" placeholder="Your name">
+          <input class="input-field" placeholder="Firm name">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <input class="input-field" placeholder="Email" type="email">
+          <input class="input-field" placeholder="Phone" type="tel">
+        </div>
+        <select class="input-field" style="margin-bottom:16px;appearance:none;-webkit-appearance:none;">
+          <option value="" style="background:#111;">Primary practice area</option>
+          <option value="pi" style="background:#111;">Personal Injury</option>
+          <option value="family" style="background:#111;">Family Law</option>
+          <option value="criminal" style="background:#111;">Criminal Defense</option>
+          <option value="immigration" style="background:#111;">Immigration</option>
+          <option value="employment" style="background:#111;">Employment Law</option>
+          <option value="business" style="background:#111;">Business / Real Estate</option>
+          <option value="other" style="background:#111;">Other</option>
+        </select>
+        <button class="btn-red" style="width:100%;font-size:16px;padding:16px 0;" onclick="document.getElementById('contact-form').style.display='none';document.getElementById('contact-success').style.display='block';">
+          Book My Free Consultation →
+        </button>
+        <p style="color:var(--text-dark);font-size:12px;margin-top:10px;">No commitment · 15-minute call · Built for law firms</p>
+        <div style="display:flex;gap:20px;justify-content:center;margin-top:20px;">
+          <a href="tel:+1XXXXXXXXXX" class="nav-link" style="font-size:13px;">📞 Call Us</a>
+          <a href="mailto:info@intakeon.com" class="nav-link" style="font-size:13px;">✉️ Email Us</a>
+        </div>
+      </div>
+      <div id="contact-success" style="display:none;padding:28px;background:rgba(230,57,70,.06);border-radius:14px;max-width:420px;margin:0 auto;">
+        <div style="font-size:28px;margin-bottom:8px;">✅</div>
+        <div style="font-family:'Sora';font-weight:700;font-size:18px;color:var(--heading);margin-bottom:6px;">We'll be in touch!</div>
+        <p style="color:var(--text-dim);font-size:14px;">A member of the IntakeOn team will reach out within 24 hours to schedule your consultation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;">
+    <a href="#" class="nav-logo" style="text-decoration:none;" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">
+      <div class="logo-mark" style="width:28px;height:28px;"><div class="logo-mark-inner" style="width:18px;height:18px;">
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="#E63946"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.13.81.36 1.6.68 2.35a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.75.32 1.54.55 2.35.68A2 2 0 0122 16.92z"/></svg>
+      </div></div>
+      <span class="nav-brand" style="font-size:15px;">intake<span>On</span></span>
+    </a>
+    <div style="display:flex;gap:22px;">
+      <a href="#" class="nav-link" style="font-size:12px;">Privacy Policy</a>
+      <a href="#" class="nav-link" style="font-size:12px;">Terms of Service</a>
+      <a href="#" class="nav-link" style="font-size:12px;">Blog</a>
+      <a href="#contact" class="nav-link" style="font-size:12px;">Contact</a>
+    </div>
+    <div style="color:#1A2030;font-size:12px;">© 2026 IntakeOn LLC. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+const observer=new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting&&e.target.classList.add('visible')})},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+const counterObs=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting&&!e.target.dataset.started){e.target.dataset.started='true';const end=parseFloat(e.target.dataset.counter),suffix=e.target.dataset.suffix||'';let s=0;const step=end/(2000/16),tick=()=>{s+=step;if(s>=end){e.target.textContent=end+suffix;return}e.target.textContent=Math.floor(s)+suffix;requestAnimationFrame(tick)};tick()}})},{threshold:.4});
+document.querySelectorAll('[data-counter]').forEach(el=>counterObs.observe(el));
+
+function toggleFaq(btn){const item=btn.closest('.faq-item'),wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));if(!wasOpen)item.classList.add('open')}
+
+const wc=document.getElementById('waveform');
+for(let i=0;i<16;i++){const b=document.createElement('div');b.className='wave-bar';b.style.height='4px';b.style.transition='height .3s ease '+i*.02+'s';wc.appendChild(b)}
+let wa=false;
+setInterval(()=>{wa=!wa;document.querySelectorAll('.wave-bar').forEach(b=>{b.style.height=wa?(4+Math.random()*20)+'px':'4px'})},1500);
+
+const secs=document.querySelectorAll('section[id]');
+window.addEventListener('scroll',()=>{let c='';secs.forEach(s=>{if(window.scrollY>=s.offsetTop-120)c=s.getAttribute('id')});document.querySelectorAll('.nav-link').forEach(l=>{l.style.color=l.getAttribute('href')==='#'+c?'#E63946':''})});
+</script>
+</body>
+</html>
